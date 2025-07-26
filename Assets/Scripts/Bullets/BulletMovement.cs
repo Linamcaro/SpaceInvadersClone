@@ -18,6 +18,8 @@ public class BulletMovement : MonoBehaviour
             other.gameObject.SetActive(false); // Deactivate enemy
             // Return bullet to pool
             BulletPool.Instance.ReturnBullet(gameObject);
+
+            GameManager.Instance.EnemyKilled(); // Notify GameManager about the enemy kill
         }
         else if (other.CompareTag("Boundary"))
         {

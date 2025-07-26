@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class EnemySpawner : MonoBehaviour
@@ -11,7 +12,16 @@ public class EnemySpawner : MonoBehaviour
 
     private void Start()
     {
-        spawnEnemy();
+        GameManager.OnGameStateChanged += OnGameStateChanged;
+    }
+
+    private void OnGameStateChanged(GameManager.GameState state)
+    {
+        if (state == GameManager.GameState.Countdown)
+        {
+            // Start spawning enemies when the game state changes to Countdown
+            spawnEnemy();
+        }
     }
 
     private void spawnEnemy()

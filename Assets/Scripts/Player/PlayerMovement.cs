@@ -11,6 +11,9 @@ public class PlayerMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (GameManager.Instance.CurrentGameState != GameManager.GameState.Playing)
+            return;
+
         float horizontalInput = Input.GetAxis("Horizontal");
         Vector3 move = new Vector3(horizontalInput * speed * Time.deltaTime, 0, 0);
         transform.position += move;

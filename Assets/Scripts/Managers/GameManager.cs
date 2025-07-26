@@ -21,10 +21,14 @@ public class GameManager : MonoBehaviour
     public int Lives { get; private set; } = 3;
     public int CurrentLevel { get; private set; } = 1;
 
+    public float countdownTostartTimer { get; set; } = 5;
+
     // Events
     public static event Action<GameState> OnGameStateChanged;
     public event EventHandler OnGameOver;
     public event EventHandler OnVictory;
+    public event EventHandler OnLevelIncreased;
+    public event EventHandler OnLivesChanged;
     public enum GameState
     {
         WaitingToStart,
@@ -53,6 +57,24 @@ public class GameManager : MonoBehaviour
         SetGameState(GameState.WaitingToStart);
     }
 
+    void Update()
+    {
+        if (CurrentGameState == GameState.Countdown)
+        {
+            UpdateCountdown();
+        }
+
+    }
+
+    private void UpdateCountdown()
+    {
+        countdownTostartTimer -= Time.deltaTime;
+        if (countdownTostartTimer < 0f)
+        {
+            SetGameState(GameState.Playing);
+        }
+    }
+
     public void SetGameState(GameState newState)
     {
         CurrentGameState = newState;
@@ -61,16 +83,23 @@ public class GameManager : MonoBehaviour
         switch (newState)
         {
             case GameState.WaitingToStart:
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
                 break;
             case GameState.Countdown:
+
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
                 break;
             case GameState.Playing:
                 break;
             case GameState.EndGame:
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
                 break;
         }
 
-        OnGameStateChanged?.Invoke(newState);
+        OnGameStateChanged?.Invoke(CurrentGameState);
     }
 
     public void EnemyKilled()
@@ -78,14 +107,14 @@ public class GameManager : MonoBehaviour
         amountKilledEnemies++;
         Debug.Log("Enemies killed: " + amountKilledEnemies);
 
-        if (amountKilledEnemies == 55)
+        if (amountKilledEnemies >= 55)
         {
-            SetGameState(GameState.EndGame);
             Lives++;
+            OnLivesChanged?.Invoke(this, EventArgs.Empty);
             Debug.Log("Game Over! You killed enough enemies.");
             IncreaseLevel();
-
         }
+
     }
 
     public void PlayerDied()
@@ -100,6 +129,7 @@ public class GameManager : MonoBehaviour
             Debug.Log("Game Over! You have no lives left.");
             OnGameOver?.Invoke(this, EventArgs.Empty);
         }
+        OnLivesChanged?.Invoke(this, EventArgs.Empty);
     }
 
     public void IncreaseLevel()
@@ -109,12 +139,15 @@ public class GameManager : MonoBehaviour
 
         if (CurrentLevel > 10)
         {
+            CurrentLevel = 10;
             OnVictory?.Invoke(this, EventArgs.Empty);
+            SetGameState(GameState.EndGame);
         }
         else
         {
             amountKilledEnemies = 0;
         }
+        OnLevelIncreased?.Invoke(this, EventArgs.Empty);
 
     }
 
