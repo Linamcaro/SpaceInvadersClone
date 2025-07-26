@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -14,11 +12,19 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public GameState CurrentGameState;
+    public GameState CurrentGameState { get; private set; }
 
-    public Vector3 leftBound;
-    public Vector3 rightBound;
+    [HideInInspector] public Vector3 leftBound { get; private set; }
+    [HideInInspector] public Vector3 rightBound { get; private set; }
+
+    private int amountKilledEnemies = 0;
+    public int Lives { get; private set; } = 3;
+    public int CurrentLevel { get; private set; } = 1;
+
+    // Events
     public static event Action<GameState> OnGameStateChanged;
+    public event EventHandler OnGameOver;
+    public event EventHandler OnVictory;
     public enum GameState
     {
         WaitingToStart,
@@ -32,7 +38,6 @@ public class GameManager : MonoBehaviour
         if (instance == null)
         {
             instance = this;
-            DontDestroyOnLoad(gameObject);
         }
         else
         {
@@ -66,6 +71,51 @@ public class GameManager : MonoBehaviour
         }
 
         OnGameStateChanged?.Invoke(newState);
+    }
+
+    public void EnemyKilled()
+    {
+        amountKilledEnemies++;
+        Debug.Log("Enemies killed: " + amountKilledEnemies);
+
+        if (amountKilledEnemies == 55)
+        {
+            SetGameState(GameState.EndGame);
+            Lives++;
+            Debug.Log("Game Over! You killed enough enemies.");
+            IncreaseLevel();
+
+        }
+    }
+
+    public void PlayerDied()
+    {
+        Lives--;
+        Debug.Log("Lives left: " + Lives);
+
+        if (Lives < 0)
+        {
+            Lives = 0;
+            SetGameState(GameState.EndGame);
+            Debug.Log("Game Over! You have no lives left.");
+            OnGameOver?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    public void IncreaseLevel()
+    {
+        CurrentLevel++;
+        Debug.Log("Level increased to: " + CurrentLevel);
+
+        if (CurrentLevel > 10)
+        {
+            OnVictory?.Invoke(this, EventArgs.Empty);
+        }
+        else
+        {
+            amountKilledEnemies = 0;
+        }
+
     }
 
 }

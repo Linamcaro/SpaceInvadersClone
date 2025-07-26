@@ -4,7 +4,7 @@ public class EnemyMovement : MonoBehaviour
 {
     private float direction = 1f;
     private float speed = 0.3f;
-    private float distanciaBajada = 0.2f;
+    private float downDistance = 0.2f;
 
     private bool hasChangeDirection;
 
@@ -24,7 +24,7 @@ public class EnemyMovement : MonoBehaviour
             if (enemy.position.x <= (GameManager.Instance.leftBound.x + 2f) || enemy.position.x >= (GameManager.Instance.rightBound.x - 2f))
             {
                 direction *= -1f;
-                transform.position += Vector3.down * distanciaBajada;
+                transform.position += Vector3.down * downDistance;
                 hasChangeDirection = true;
                 Invoke(nameof(ResethasChangeDirection), 0.1f);
                 break; // Exit the loop after changing direction
