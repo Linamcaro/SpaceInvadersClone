@@ -18,6 +18,8 @@ public class EnemySpawner : MonoBehaviour
     {
         int prefabIndex = 0;
 
+        /* Calculate the centerof the grid based on the number of rows and columns
+           and the spacing between enemies*/
         float width = xEnemySpace * (columns - 1);
         float height = yEnemySpace * (rows - 1);
         Vector2 center = new Vector2(-width / 2, -height / 2);
@@ -32,17 +34,16 @@ public class EnemySpawner : MonoBehaviour
                 prefabIndex = 2; // Use the third prefab for the remaining rows
 
 
-
-
             for (int j = 0; j < columns; j++)
             {
+                // Calculate the position for each enemy based on its row and column
                 Vector3 position = new Vector3(j * xEnemySpace, i * yEnemySpace, 0f);
                 position += (Vector3)center;
 
                 //Instantiate the enemy prefab at the spawner's position
                 GameObject enemy = Instantiate(enemyPrefabs[prefabIndex], transform);
-                enemy.transform.localPosition = position; // Set the local position of the enemy
-
+                // Set the local position of the enemy
+                enemy.transform.localPosition = position;
             }
         }
     }
